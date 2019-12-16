@@ -24,7 +24,7 @@
         android:id="@+id/tv_height"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Height" />
+        android:text="Height(cm)" />
 
     <EditText
         android:id="@+id/et_height"
@@ -54,4 +54,12 @@
         android:layout_height="wrap_content"
         android:text="Apply"
         android:onClick="applyLogin"/>
+
+    <TextView
+        android:id="@+id/tv_error"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:text="" />
 </LinearLayout>

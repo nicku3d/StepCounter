@@ -5,12 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
 
-    private static String PACKAGE_NAME;
-    private SharedPreferences mPreferences;
+    //private static String PACKAGE_NAME;
+    static SharedPreferences mPreferences;
+    private TextView tvWelcome;
     //private String mSharedPrefFile = getApplicationContext().getPackageName()+"preferences";
 
     @Override
@@ -24,20 +26,37 @@ public class MainActivity extends AppCompatActivity {
 
         //Init preferences
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
-        Boolean isUserLoggedIn = mPreferences.getBoolean("isUserLoggedIn", false);
+        boolean isUserLoggedIn = mPreferences.getBoolean("isUserLoggedIn", false);
+
+        tvWelcome = findViewById(R.id.tv_welcome);
 
         if(!isUserLoggedIn) {
 
             //open login activity
             Intent loginActivityIntent = new Intent(this, LoginActivity.class);
             startActivity(loginActivityIntent);
+        } else {
+            String name = mPreferences.getString("user_name", "Anonymous");
+            int height = mPreferences.getInt("user_height", 180);
+            int age = mPreferences.getInt("user_age", 18);
 
-            //change isUserLoggedIn to true here or in the other activity, probably in the other one
-            SharedPreferences.Editor preferencesEditor = mPreferences.edit();
-            preferencesEditor.putBoolean("isUserLoggedIn", true);
-            preferencesEditor.apply();
+            tvWelcome.setText("Welcome "+name+ ", your height is: "+ height + "cm and " +
+                    "you are "+ age + " years old. Have good time here.");
         }
 
+
+
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        String name = mPreferences.getString("user_name", "Anonymous");
+        int height = mPreferences.getInt("user_height", 180);
+        int age = mPreferences.getInt("user_age", 18);
+
+        tvWelcome.setText("Welcome "+ name + ", your height is: "+ height + "cm and " +
+                "you are "+ age + " years old. Have good time here.");
     }
 
     @Override
