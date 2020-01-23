@@ -2,9 +2,13 @@ package com.gmail.nicku3d.stepcounter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -15,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvWelcome;
     //private String mSharedPrefFile = getApplicationContext().getPackageName()+"preferences";
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
         //shared preferences file name
         String sharedPrefFile = getApplicationContext().getPackageName()+".preferences";
-
 
         //Init preferences
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
@@ -67,5 +73,10 @@ public class MainActivity extends AppCompatActivity {
 //        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
 //        //prefs to save here
 //        preferencesEditor.apply();
+    }
+
+    public void openSensorActivity(View view) {
+        Intent sensorActivityIntent = new Intent(this, SensorActivity.class);
+        startActivity(sensorActivityIntent);
     }
 }
