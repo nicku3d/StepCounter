@@ -55,8 +55,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
+        super.onResume();
+
+        //maybe its better to use onSavedInstance or sth
         String name = mPreferences.getString("user_name", "Anonymous");
         int height = mPreferences.getInt("user_height", 180);
         int age = mPreferences.getInt("user_age", 18);
