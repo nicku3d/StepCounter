@@ -1,5 +1,6 @@
 package com.gmail.nicku3d.stepcounter;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -16,5 +17,5 @@ public interface StepsDAO {
     void deleteAll();
 
     @Query("SELECT * from steps_table ORDER BY date")
-    List<DailySteps> getAllDailySteps();
+    LiveData<List<DailySteps>> getAllDailySteps();
 }
