@@ -8,7 +8,7 @@ import androidx.room.Query;
 import java.util.List;
 
 @Dao
-public interface StepsDAO {
+public interface StepsDao {
 
     @Insert
     void insert(DailySteps dailySteps);
