@@ -6,18 +6,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
 
     //private static String PACKAGE_NAME;
     static SharedPreferences mPreferences;
     private TextView tvWelcome;
     //private String mSharedPrefFile = getApplicationContext().getPackageName()+"preferences";
+
+    //stepcounting things
+    private SensorManager sensorManager;
+    private Sensor sensor;
+    private int startingStepCount = 0;
+    private int stepCount = 0;
 
 
 
@@ -51,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        startingStepCount = mPreferences.getInt("starting_step_count", 0);
+        //stepcounting things init
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+
 
     }
 
@@ -65,20 +79,42 @@ public class MainActivity extends AppCompatActivity {
 
         tvWelcome.setText("Welcome "+ name + ", your height is: "+ height + "cm and " +
                 "you are "+ age + " years old. Have good time here.");
+
+        //sensor stuff
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        if(sensor != null) {
+            sensorManager.registerListener(this, sensor, sensorManager.SENSOR_DELAY_UI);
+        } else {
+            Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
-//        //Save preferences
-//        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
-//        //prefs to save here
-//        preferencesEditor.apply();
     }
 
-    public void openSensorActivity(View view) {
-        Intent sensorActivityIntent = new Intent(this, SensorActivity.class);
-        startActivity(sensorActivityIntent);
+    @Override
+    public void onSensorChanged(SensorEvent e) {
+        if(e.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+            if (startingStepCount < 1) {
+                // initial value
+                startingStepCount = (int)e.values[0];
+            }
+
+            // Calculate steps taken based on first counter value received.
+            stepCount = (int)e.values[0] - startingStepCount;
+            TextView showStepCount = findViewById(R.id.tv_steps_count);
+            //show steps since reboot
+            ((TextView)findViewById(R.id.tv_steps_reboot)).setText(Integer.toString((int)e.values[0]));
+            showStepCount.setText(Integer.toString(stepCount));
+            //show number of starting steps
+            ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount));
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
