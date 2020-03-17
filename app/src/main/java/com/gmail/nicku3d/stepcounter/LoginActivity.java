@@ -23,30 +23,13 @@ public class LoginActivity extends AppCompatActivity {
         etHeight = findViewById(R.id.et_height);
         etAge = findViewById(R.id.et_age);
         tvError = findViewById(R.id.tv_error);
-
-        // Restore the state.
-//        if (savedInstanceState != null) {
-//            if(savedInstanceState.containsKey("user_name")) {
-//                String name = savedInstanceState.getString("user_name");
-//                etName.setText(name);
-//            }
-//            if(savedInstanceState.containsKey("user_height")) {
-//                int height = savedInstanceState.getInt("user_height");
-//                etHeight.setText(height);
-//            }
-//            if(savedInstanceState.containsKey("user_age")) {
-//                int age = savedInstanceState.getInt("user_age");
-//                etAge.setText(age);
-//            }
-//        }
-
     }
 
     public void applyLogin(View view) {
 
         tvError.setVisibility(View.INVISIBLE);
 
-        if(isEmpty(etName) || isEmpty(etHeight) || isEmpty(etAge)) {
+        if (isEmpty(etName) || isEmpty(etHeight) || isEmpty(etAge)) {
             tvError.setText("Fill all fields!");
             tvError.setVisibility(View.VISIBLE);
         } else {
@@ -54,15 +37,15 @@ public class LoginActivity extends AppCompatActivity {
             int height = Integer.parseInt(etHeight.getText().toString());
             int age = Integer.parseInt(etAge.getText().toString());
 
-            //sprawdzanie czy wszystkie pola sa odpowiednio wypelniony
-            if(height <=40 || height >= 300) {
-                //blad wysokosc niepoprawna
+            //checking if all fields are fullfiled
+            if (height <= 40 || height >= 300) {
+                //error wrong height
                 tvError.setText("Height field is wrongly filled");
                 tvError.setVisibility(View.VISIBLE);
             }
 
-            if(age > 150 || age < 0){
-                //bledny wiek
+            if (age > 150 || age < 0) {
+                //wrong age
                 tvError.setText("Age field is wrongly filled");
                 tvError.setVisibility(View.VISIBLE);
             }
@@ -82,9 +65,8 @@ public class LoginActivity extends AppCompatActivity {
         //
 
 
-
         //going back to MainActivity
-        if(tvError.getVisibility() == View.INVISIBLE) {
+        if (tvError.getVisibility() == View.INVISIBLE) {
             finish();
         }
     }
@@ -93,23 +75,6 @@ public class LoginActivity extends AppCompatActivity {
 
         return etText.getText().toString().trim().length() <= 0;
     }
-
-//    @Override
-//    protected void onSaveInstanceState(@NonNull Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//
-//        if(!isEmpty(etName)) {
-//            outState.putString("userName", etName.getText().toString());
-//        }
-//
-//        if(!isEmpty(etHeight)) {
-//            outState.putInt("userHeight", Integer.parseInt(etHeight.getText().toString()));
-//        }
-//
-//        if(!isEmpty(etAge)) {
-//            outState.putInt("userAge", Integer.parseInt(etAge.getText().toString()));
-//        }
-//    }
 }
 
 
