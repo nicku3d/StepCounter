@@ -2,6 +2,8 @@ package com.gmail.nicku3d.stepcounter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,19 +16,19 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Calendar;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-
-    //private static String PACKAGE_NAME;
     static SharedPreferences mPreferences;
     private TextView tvWelcome;
-    //private String mSharedPrefFile = getApplicationContext().getPackageName()+"preferences";
 
     //stepcounting things
     private SensorManager sensorManager;
     private Sensor sensor;
-    private int startingStepCount = 0;
+    static int startingStepCount = 0;
     private int stepCount = 0;
+    private int previousDayStepCount = 0;
 
 
 
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         //shared preferences file name
         String sharedPrefFile = getApplicationContext().getPackageName()+".preferences";
+        //getting app context once per create
+        Context context = getApplicationContext();
 
         //Init preferences
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
@@ -64,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //stepcounting things init
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
+        setAlarmManager(context);
 
 
     }
@@ -90,8 +95,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        if(sensor != null) {
+            sensorManager.registerListener(this, sensor, sensorManager.SENSOR_DELAY_UI);
+        } else {
+            Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
+        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
+        preferencesEditor.putInt("starting_step_count", startingStepCount);
+        preferencesEditor.apply();
     }
 
     @Override
@@ -116,5 +136,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    public void setAlarmManager(Context context){
+        //alarmManager to reset steps at the end of the day
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 21);
+        calendar.set(Calendar.MINUTE, 30);
+        calendar.set(Calendar.SECOND, 0);
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, alarmIntent);
     }
 }
