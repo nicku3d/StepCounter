@@ -3,7 +3,10 @@ package com.gmail.nicku3d.stepcounter;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -33,11 +36,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor sensor;
     static int startingStepCount = 0;
-    private int stepCount = 0;
+    private static int stepCount = 0;
     private int previousDayStepCount = 0;
-    static Date stepsResetDate = new Date(0);
 
-    private StepsViewModel stepsViewModel;
+    private static StepsViewModel stepsViewModel;
 
 
 
@@ -79,17 +81,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         setAlarmManager(context);
 
-        stepsResetDate = new Date(mPreferences.getLong("steps_reset_date", 0));
 
-        stepsViewModel = ViewModelProviders.of(this).get(StepsViewModel.class);
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
+        final StepsListAdapter adapter = new StepsListAdapter(this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        stepsViewModel = new ViewModelProvider(this).get(StepsViewModel.class);
 
         stepsViewModel.getAllDailySteps().observe(this, new Observer<List<DailySteps>>() {
             @Override
-            public void onChanged(@Nullable final List<DailySteps> words) {
-
+            public void onChanged(@Nullable final List<DailySteps> steps) {
+                adapter.setSteps(steps);
             }
         });
     }
+
 
     @Override
     protected void onResume() {
@@ -124,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         SharedPreferences.Editor preferencesEditor = mPreferences.edit();
         preferencesEditor.putInt("starting_step_count", startingStepCount);
-        preferencesEditor.putLong("steps_reset_date", stepsResetDate.getTime());
         preferencesEditor.apply();
     }
 
@@ -144,9 +150,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             showStepCount.setText(Integer.toString(stepCount));
             //show number of starting steps
             ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount));
-
-            //tmp test reset date:
-            ((TextView)(findViewById(R.id.tv_steps_reset_date))).setText(stepsResetDate.toString());
         }
     }
 
@@ -179,5 +182,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public static void insertDailySteps(){
+        DailySteps dailySteps = new DailySteps(stepCount, new Date().toString());
+        stepsViewModel.insert(dailySteps);
     }
 }
