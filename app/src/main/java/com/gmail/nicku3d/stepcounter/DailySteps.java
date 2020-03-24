@@ -17,19 +17,19 @@ public class DailySteps {
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "date")
-    private Date date;
+    private String date;
 
-    public DailySteps (@NonNull int steps) {
+    public DailySteps (@NonNull int steps, @NonNull String date) {
         this.steps = steps;
-        java.util.Date utilDateNow = new java.util.Date();
-        this.date = new java.sql.Date(utilDateNow.getTime());
+        //java.util.Date utilDateNow = new java.util.Date();
+        this.date = date;//new java.sql.Date(utilDateNow.getTime()).toString();
     }
 
     public int getSteps() {
         return this.steps;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return this.date;
     }
 }

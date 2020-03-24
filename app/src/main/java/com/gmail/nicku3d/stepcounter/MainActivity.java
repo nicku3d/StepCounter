@@ -1,6 +1,9 @@
 package com.gmail.nicku3d.stepcounter;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -17,9 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
+    public static final String ACTION_RESET_DAILY_STEPS = "ACTION_RESET_DAILY_STEPS";
     static SharedPreferences mPreferences;
     private TextView tvWelcome;
 
@@ -29,6 +35,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     static int startingStepCount = 0;
     private int stepCount = 0;
     private int previousDayStepCount = 0;
+    static Date stepsResetDate = new Date(0);
+
+    private StepsViewModel stepsViewModel;
 
 
 
@@ -65,12 +74,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         startingStepCount = mPreferences.getInt("starting_step_count", 0);
-        //stepcounting things init
+        //sensor init
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         setAlarmManager(context);
 
+        stepsResetDate = new Date(mPreferences.getLong("steps_reset_date", 0));
 
+        stepsViewModel = ViewModelProviders.of(this).get(StepsViewModel.class);
+
+        stepsViewModel.getAllDailySteps().observe(this, new Observer<List<DailySteps>>() {
+            @Override
+            public void onChanged(@Nullable final List<DailySteps> words) {
+
+            }
+        });
     }
 
     @Override
@@ -98,12 +116,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPostResume() {
         super.onPostResume();
 
-        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        if(sensor != null) {
-            sensorManager.registerListener(this, sensor, sensorManager.SENSOR_DELAY_UI);
-        } else {
-            Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
-        }
+        findSensor();
     }
 
     @Override
@@ -111,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         SharedPreferences.Editor preferencesEditor = mPreferences.edit();
         preferencesEditor.putInt("starting_step_count", startingStepCount);
+        preferencesEditor.putLong("steps_reset_date", stepsResetDate.getTime());
         preferencesEditor.apply();
     }
 
@@ -130,6 +144,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             showStepCount.setText(Integer.toString(stepCount));
             //show number of starting steps
             ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount));
+
+            //tmp test reset date:
+            ((TextView)(findViewById(R.id.tv_steps_reset_date))).setText(stepsResetDate.toString());
         }
     }
 
@@ -142,15 +159,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //alarmManager to reset steps at the end of the day
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        intent.setAction(ACTION_RESET_DAILY_STEPS);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 21);
-        calendar.set(Calendar.MINUTE, 30);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, alarmIntent);
+    }
+
+    public void findSensor(){
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        if(sensor != null) {
+            sensorManager.registerListener(this, sensor, sensorManager.SENSOR_DELAY_UI);
+        } else {
+            Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
+        }
     }
 }

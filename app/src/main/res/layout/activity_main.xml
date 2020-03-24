@@ -62,4 +62,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.125" />
 
+    <TextView
+        android:id="@+id/tv_steps_reset_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="steps reset date" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </LinearLayout>
