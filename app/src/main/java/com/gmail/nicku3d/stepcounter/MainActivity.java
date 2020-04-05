@@ -18,6 +18,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor sensor;
     static int startingStepCount = 0;
     private static int stepCount = 0;
-    private int previousDayStepCount = 0;
 
     private static StepsViewModel stepsViewModel;
 
@@ -137,16 +137,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent e) {
         if(e.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+
+            int rebootSteps = (int)e.values[0];
+
             if (startingStepCount < 1) {
                 // initial value
-                startingStepCount = (int)e.values[0];
+                startingStepCount = rebootSteps;
             }
 
+
             // Calculate steps taken based on first counter value received.
-            stepCount = (int)e.values[0] - startingStepCount;
+            stepCount = rebootSteps - startingStepCount;
             TextView showStepCount = findViewById(R.id.tv_steps_count);
             //show steps since reboot
-            ((TextView)findViewById(R.id.tv_steps_reboot)).setText(Integer.toString((int)e.values[0]));
+            ((TextView)findViewById(R.id.tv_steps_reboot)).setText(Integer.toString(rebootSteps));
             showStepCount.setText(Integer.toString(stepCount));
             //show number of starting steps
             ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount));
@@ -159,20 +163,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void setAlarmManager(Context context){
-        //alarmManager to reset steps at the end of the day
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.setAction(ACTION_RESET_DAILY_STEPS);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
+        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
+                new Intent(ACTION_RESET_DAILY_STEPS),
+                PendingIntent.FLAG_NO_CREATE) != null);
 
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, alarmIntent);
+        if (alarmUp)
+        {
+            Log.d("myTag", "Alarm is already active");
+        }
+        else {
+            //alarmManager to reset steps at the end of the day
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            Intent intent = new Intent(context, AlarmReceiver.class);
+            intent.setAction(ACTION_RESET_DAILY_STEPS);
+            PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY, alarmIntent);
+        }
     }
 
     public void findSensor(){
