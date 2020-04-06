@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/tv_reboot_steps_tittle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reboot Steps:" />
+
+    <TextView
+        android:id="@+id/tv_steps_reboot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="reboot steps"
+        app:layout_constraintTop_toBottomOf="@+id/tv_steps_count"
+        tools:layout_editor_absoluteX="176dp" />
+
+    <TextView
+        android:id="@+id/tv_starting_steps_tittle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Starting Steps:" />
+
+    <TextView
+        android:id="@+id/tv_starting_steps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="starting steps"
+        app:layout_constraintTop_toBottomOf="@+id/tv_steps_reboot"
+        tools:layout_editor_absoluteX="176dp" />
+
+    <TextView
+        android:id="@+id/tv_daily_steps_tittle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Daily Steps: (Reboot - Starting)" />
+
+    <TextView
+        android:id="@+id/tv_steps_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="tu beda kroki"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_welcome" />
+
+    <TextView
+        android:id="@+id/tv_welcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.125" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

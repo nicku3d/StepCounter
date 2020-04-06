@@ -1,10 +1,13 @@
 package com.gmail.nicku3d.stepcounter;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.preference.PreferenceFragmentCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,6 +22,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +54,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        //
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        //
         //shared preferences file name
         String sharedPrefFile = getApplicationContext().getPackageName()+".preferences";
         //getting app context once per create
@@ -97,6 +107,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onResume() {
@@ -163,16 +194,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void setAlarmManager(Context context){
+            //TODO: alarms still dont work properly,MAKE IT WORK, probably using intentmanager or something to do the task?
+//        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
+//                new Intent(ACTION_RESET_DAILY_STEPS),
+//                PendingIntent.FLAG_NO_CREATE) != null);
 
-        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
-                new Intent(ACTION_RESET_DAILY_STEPS),
-                PendingIntent.FLAG_NO_CREATE) != null);
-
-        if (alarmUp)
-        {
-            Log.d("myTag", "Alarm is already active");
-        }
-        else {
+//        if (alarmUp)
+//        {
+//            Log.d("myTag", "Alarm is already active");
+//        }
+//        else {
             //alarmManager to reset steps at the end of the day
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             Intent intent = new Intent(context, AlarmReceiver.class);
@@ -191,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
 
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
-        }
+        //}
     }
 
     public void findSensor(){
