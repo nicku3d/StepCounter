@@ -1,6 +1,7 @@
 package com.gmail.nicku3d.stepcounter;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
@@ -11,8 +12,8 @@ public class StepsRepository {
     private StepsDao mStepsDao;
     private LiveData<List<DailySteps>> mAllDailySteps;
 
-    StepsRepository(Application application) {
-        StepsRoomDatabase db = StepsRoomDatabase.getDatabase(application);
+    StepsRepository(Context context) {
+        StepsRoomDatabase db = StepsRoomDatabase.getDatabase(context);
         mStepsDao = db.stepsDao();
         mAllDailySteps = mStepsDao.getAllDailySteps();
     }

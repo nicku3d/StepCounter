@@ -28,13 +28,16 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-
+    //TODO: Change static to private with getters and setters!
     public static final String ACTION_RESET_DAILY_STEPS = "ACTION_RESET_DAILY_STEPS";
+    private static final String TAG = MainActivity.class.getName();;
     static SharedPreferences mPreferences;
     private TextView tvWelcome;
 
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor sensor;
     static int startingStepCount = 0;
-    private static int stepCount = 0;
+    static int stepCount = 0;
 
     private static StepsViewModel stepsViewModel;
 
@@ -178,7 +181,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startingStepCount = rebootSteps;
             }
 
-
             // Calculate steps taken based on first counter value received.
             stepCount = rebootSteps - startingStepCount;
             TextView showStepCount = findViewById(R.id.tv_steps_count);
@@ -196,16 +198,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void setAlarmManager(Context context){
-            //TODO: alarms still dont work properly,MAKE IT WORK, probably using intentmanager or something to do the task?
-//        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
-//                new Intent(ACTION_RESET_DAILY_STEPS),
-//                PendingIntent.FLAG_NO_CREATE) != null);
+        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
+                new Intent(ACTION_RESET_DAILY_STEPS),
+                PendingIntent.FLAG_NO_CREATE) != null);
 
-//        if (alarmUp)
-//        {
-//            Log.d("myTag", "Alarm is already active");
-//        }
-//        else {
+        if (alarmUp)
+        {
+            Log.d(TAG, "Alarm is already active");
+        }
+        else {
             //alarmManager to reset steps at the end of the day
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             Intent intent = new Intent(context, AlarmReceiver.class);
@@ -224,7 +225,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
 
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
-        //}
+            Log.d(TAG, "Alarm set!");
+        }
     }
 
     public void findSensor(){
@@ -234,10 +236,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public static void insertDailySteps(){
-        DailySteps dailySteps = new DailySteps(stepCount, new Date().toString());
-        stepsViewModel.insert(dailySteps);
     }
 }
