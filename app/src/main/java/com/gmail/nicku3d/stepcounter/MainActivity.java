@@ -44,11 +44,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //stepcounting things
     private SensorManager sensorManager;
     private Sensor sensor;
+
     static int startingStepCount = 0;
     static int stepCount = 0;
 
     private static StepsViewModel stepsViewModel;
 
+    String sharedPrefFile;
 
 
 
@@ -58,14 +60,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
 
-        //
+        //action bar init
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //
-        //shared preferences file name
-        String sharedPrefFile = getApplicationContext().getPackageName()+".preferences";
+        //end of action bar init
+
         //getting app context once per create
         Context context = getApplicationContext();
+        //shared preferences file name
+        sharedPrefFile = context.getPackageName()+".preferences";
 
         //Init preferences
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
@@ -198,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void setAlarmManager(Context context){
+        //TODO: checking if alarm is set doesn't seem to work :/ check it and repair
         boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
                 new Intent(ACTION_RESET_DAILY_STEPS),
                 PendingIntent.FLAG_NO_CREATE) != null);
@@ -211,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             Intent intent = new Intent(context, AlarmReceiver.class);
             intent.setAction(ACTION_RESET_DAILY_STEPS);
+            intent.putExtra("sharedPrefFile", sharedPrefFile);
             PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Calendar calendar = Calendar.getInstance();
