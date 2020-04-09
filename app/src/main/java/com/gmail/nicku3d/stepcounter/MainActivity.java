@@ -34,7 +34,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity /*implements SensorEventListener*/ {
     //TODO: Change static to private with getters and setters!
     public static final String ACTION_RESET_DAILY_STEPS = "ACTION_RESET_DAILY_STEPS";
     private static final String TAG = MainActivity.class.getName();;
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView tvWelcome;
 
     //stepcounting things
+    StepCounter stepCounter = StepCounter.getStepCounter();
     private SensorManager sensorManager;
     private Sensor sensor;
 
@@ -49,8 +50,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     static int stepCount = 0;
 
     private static StepsViewModel stepsViewModel;
+    private static StepCounterViewModel stepCounterViewModel;
 
     String sharedPrefFile;
+
 
 
 
@@ -95,9 +98,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //sensor init
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
+        //StepCounter
+        stepCounter.setStartingStepCountValue(startingStepCount);
+
+
         setAlarmManager(context);
 
+        //stepcounterviewmodel
+        stepCounterViewModel = new ViewModelProvider(this).get(StepCounterViewModel.class);
+        stepCounterViewModel.getStartingStepCount()
+                .observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(stepCounter.getStartingStepCountValue()));
+            }
+        });
+        stepCounterViewModel.getStepCount().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                TextView showStepCount = findViewById(R.id.tv_steps_count);
+                showStepCount.setText(Integer.toString(stepCounter.getStepCountValue()));
+            }
+        });
+        stepCounterViewModel.getRebootSteps().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                int rebootSteps = stepCounter.getRebootSteps().getValue();
+                ((TextView)findViewById(R.id.tv_steps_reboot)).setText(Integer.toString(rebootSteps));
+            }
+        });
 
+
+        //database viewmodel and recyclerview
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
         final StepsListAdapter adapter = new StepsListAdapter(this);
         recyclerView.setAdapter(adapter);
@@ -152,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //sensor stuff
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         if(sensor != null) {
-            sensorManager.registerListener(this, sensor, sensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(stepCounter, sensor, SensorManager.SENSOR_DELAY_UI);
         } else {
             Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
         }
@@ -173,32 +205,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         preferencesEditor.apply();
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent e) {
-        if(e.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-
-            int rebootSteps = (int)e.values[0];
-
-            if (startingStepCount < 1) {
-                // initial value
-                startingStepCount = rebootSteps;
-            }
-
-            // Calculate steps taken based on first counter value received.
-            stepCount = rebootSteps - startingStepCount;
-            TextView showStepCount = findViewById(R.id.tv_steps_count);
-            //show steps since reboot
-            ((TextView)findViewById(R.id.tv_steps_reboot)).setText(Integer.toString(rebootSteps));
-            showStepCount.setText(Integer.toString(stepCount));
-            //show number of starting steps
-            ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount));
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+//    @Override
+//    public void onSensorChanged(SensorEvent e) {
+//        if(e.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+//
+//            int rebootSteps = (int)e.values[0];
+//
+//            if (startingStepCount < 1) {
+//                // initial value
+//                startingStepCount = rebootSteps;
+//            }
+//
+//            // Calculate steps taken based on first counter value received.
+//            stepCount = rebootSteps - startingStepCount;
+//            TextView showStepCount = findViewById(R.id.tv_steps_count);
+//            //show steps since reboot
+//            ((TextView)findViewById(R.id.tv_steps_reboot)).setText(Integer.toString(rebootSteps));
+//            showStepCount.setText(Integer.toString(stepCount));
+//            //show number of starting steps
+//            ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount));
+//        }
+//    }
+//
+//    @Override
+//    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+//
+//    }
 
     public void setAlarmManager(Context context){
         //TODO: checking if alarm is set doesn't seem to work :/ check it and repair
@@ -237,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void findSensor(){
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         if(sensor != null) {
-            sensorManager.registerListener(this, sensor, sensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(stepCounter, sensor, SensorManager.SENSOR_DELAY_UI);
         } else {
             Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
         }
