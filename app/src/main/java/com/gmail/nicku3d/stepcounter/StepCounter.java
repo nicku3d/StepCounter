@@ -14,8 +14,6 @@ public class StepCounter implements SensorEventListener {
     private static StepCounter INSTANCE;
     private MutableLiveData<Integer> startingStepCount = new MutableLiveData<>();
     private MutableLiveData<Integer> stepCount = new MutableLiveData<>();
-
-
     //rebootsteps is temporary debug thing
     private MutableLiveData<Integer> rebootSteps = new MutableLiveData<>();
 
@@ -60,7 +58,7 @@ public class StepCounter implements SensorEventListener {
         this.rebootSteps.setValue(0);
     }
 
-    public static StepCounter getStepCounter(){
+    static StepCounter getStepCounter(){
         if(INSTANCE == null) {
             INSTANCE = new StepCounter();
         }

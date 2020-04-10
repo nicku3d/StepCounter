@@ -34,10 +34,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity /*implements SensorEventListener*/ {
-    //TODO: Change static to private with getters and setters!
+public class MainActivity extends AppCompatActivity {
     public static final String ACTION_RESET_DAILY_STEPS = "ACTION_RESET_DAILY_STEPS";
-    private static final String TAG = MainActivity.class.getName();;
+    private static final String TAG = MainActivity.class.getName();
+    ;
     static SharedPreferences mPreferences;
     private TextView tvWelcome;
 
@@ -49,12 +49,7 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
     static int startingStepCount = 0;
     static int stepCount = 0;
 
-    private static StepsViewModel stepsViewModel;
-    private static StepCounterViewModel stepCounterViewModel;
-
     String sharedPrefFile;
-
-
 
 
     @Override
@@ -71,7 +66,7 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
         //getting app context once per create
         Context context = getApplicationContext();
         //shared preferences file name
-        sharedPrefFile = context.getPackageName()+".preferences";
+        sharedPrefFile = context.getPackageName() + ".preferences";
 
         //Init preferences
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
@@ -79,7 +74,7 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
 
         tvWelcome = findViewById(R.id.tv_welcome);
 
-        if(!isUserLoggedIn) {
+        if (!isUserLoggedIn) {
 
             //open login activity
             Intent loginActivityIntent = new Intent(this, LoginActivity.class);
@@ -89,8 +84,8 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
             int height = mPreferences.getInt("user_height", 180);
             int age = mPreferences.getInt("user_age", 18);
 
-            tvWelcome.setText("Welcome "+name+ ", your height is: "+ height + "cm and " +
-                    "you are "+ age + " years old. Have good time here.");
+            tvWelcome.setText("Welcome " + name + ", your height is: " + height + "cm and " +
+                    "you are " + age + " years old. Have good time here.");
         }
 
 
@@ -105,14 +100,18 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
         setAlarmManager(context);
 
         //stepcounterviewmodel
-        stepCounterViewModel = new ViewModelProvider(this).get(StepCounterViewModel.class);
+        StepCounterViewModel stepCounterViewModel = new ViewModelProvider(this).get(StepCounterViewModel.class);
         stepCounterViewModel.getStartingStepCount()
                 .observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(stepCounter.getStartingStepCountValue()));
-            }
-        });
+                    @Override
+                    public void onChanged(Integer integer) {
+                        int startingStepCount = stepCounter.getStartingStepCountValue();
+                        ((TextView) findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount);
+                        mPreferences.edit()
+                                .putInt("starting_step_count", startingStepCount)
+                                .apply();
+                    }
+                });
         stepCounterViewModel.getStepCount().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
@@ -124,7 +123,7 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
             @Override
             public void onChanged(Integer integer) {
                 int rebootSteps = stepCounter.getRebootSteps().getValue();
-                ((TextView)findViewById(R.id.tv_steps_reboot)).setText(Integer.toString(rebootSteps));
+                ((TextView) findViewById(R.id.tv_steps_reboot)).setText(Integer.toString(rebootSteps));
             }
         });
 
@@ -135,7 +134,7 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        stepsViewModel = new ViewModelProvider(this).get(StepsViewModel.class);
+        StepsViewModel stepsViewModel = new ViewModelProvider(this).get(StepsViewModel.class);
 
         stepsViewModel.getAllDailySteps().observe(this, new Observer<List<DailySteps>>() {
             @Override
@@ -178,12 +177,12 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
         int height = mPreferences.getInt("user_height", 180);
         int age = mPreferences.getInt("user_age", 18);
 
-        tvWelcome.setText("Welcome "+ name + ", your height is: "+ height + "cm and " +
-                "you are "+ age + " years old. Have good time here.");
+        tvWelcome.setText("Welcome " + name + ", your height is: " + height + "cm and " +
+                "you are " + age + " years old. Have good time here.");
 
         //sensor stuff
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        if(sensor != null) {
+        if (sensor != null) {
             sensorManager.registerListener(stepCounter, sensor, SensorManager.SENSOR_DELAY_UI);
         } else {
             Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();
@@ -200,75 +199,37 @@ public class MainActivity extends AppCompatActivity /*implements SensorEventList
     @Override
     protected void onPause() {
         super.onPause();
-        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
-        preferencesEditor.putInt("starting_step_count", startingStepCount);
-        preferencesEditor.apply();
+
+//        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
+//        preferencesEditor.putInt("starting_step_count", startingStepCount);
+//        preferencesEditor.apply();
     }
 
-//    @Override
-//    public void onSensorChanged(SensorEvent e) {
-//        if(e.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-//
-//            int rebootSteps = (int)e.values[0];
-//
-//            if (startingStepCount < 1) {
-//                // initial value
-//                startingStepCount = rebootSteps;
-//            }
-//
-//            // Calculate steps taken based on first counter value received.
-//            stepCount = rebootSteps - startingStepCount;
-//            TextView showStepCount = findViewById(R.id.tv_steps_count);
-//            //show steps since reboot
-//            ((TextView)findViewById(R.id.tv_steps_reboot)).setText(Integer.toString(rebootSteps));
-//            showStepCount.setText(Integer.toString(stepCount));
-//            //show number of starting steps
-//            ((TextView)findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount));
-//        }
-//    }
-//
-//    @Override
-//    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-//
-//    }
+    public void setAlarmManager(Context context) {
+        //alarmManager to reset steps at the end of the day
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        intent.setAction(ACTION_RESET_DAILY_STEPS);
+        intent.putExtra("sharedPrefFile", sharedPrefFile);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-    public void setAlarmManager(Context context){
-        //TODO: checking if alarm is set doesn't seem to work :/ check it and repair
-        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
-                new Intent(ACTION_RESET_DAILY_STEPS),
-                PendingIntent.FLAG_NO_CREATE) != null);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
 
-        if (alarmUp)
-        {
-            Log.d(TAG, "Alarm is already active");
+        if (Calendar.getInstance().after(calendar)) {
+            // Move to tomorrow
+            calendar.add(Calendar.DATE, 1);
         }
-        else {
-            //alarmManager to reset steps at the end of the day
-            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            Intent intent = new Intent(context, AlarmReceiver.class);
-            intent.setAction(ACTION_RESET_DAILY_STEPS);
-            intent.putExtra("sharedPrefFile", sharedPrefFile);
-            PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-
-            if(Calendar.getInstance().after(calendar)){
-                // Move to tomorrow
-                calendar.add(Calendar.DATE, 1);
-            }
-
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
-            Log.d(TAG, "Alarm set!");
-        }
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), alarmIntent);
+        Log.d(TAG, "Alarm set!");
     }
 
-    public void findSensor(){
+    public void findSensor() {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        if(sensor != null) {
+        if (sensor != null) {
             sensorManager.registerListener(stepCounter, sensor, SensorManager.SENSOR_DELAY_UI);
         } else {
             Toast.makeText(this, "Sensor not found!", Toast.LENGTH_SHORT).show();

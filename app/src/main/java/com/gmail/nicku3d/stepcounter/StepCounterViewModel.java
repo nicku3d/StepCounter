@@ -14,12 +14,11 @@ public class StepCounterViewModel extends AndroidViewModel {
     private MutableLiveData<Integer> startingStepCount;
     private MutableLiveData<Integer> stepCount;
     private MutableLiveData<Integer> rebootSteps;
-    private StepCounter stepCounter;
 
 
     public StepCounterViewModel(@NonNull Application application) {
         super(application);
-        stepCounter = StepCounter.getStepCounter();
+        StepCounter stepCounter = StepCounter.getStepCounter();
         startingStepCount = stepCounter.getStartingStepCount();
         stepCount = stepCounter.getStepCount();
         rebootSteps = stepCounter.getRebootSteps();
