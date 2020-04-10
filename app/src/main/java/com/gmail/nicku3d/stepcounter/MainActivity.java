@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onChanged(Integer integer) {
                         int startingStepCount = stepCounter.getStartingStepCountValue();
-                        ((TextView) findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount);
+                        ((TextView) findViewById(R.id.tv_starting_steps)).setText(Integer.toString(startingStepCount));
                         mPreferences.edit()
                                 .putInt("starting_step_count", startingStepCount)
                                 .apply();
