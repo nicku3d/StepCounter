@@ -46,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private Sensor sensor;
 
-    static int startingStepCount = 0;
-    static int stepCount = 0;
+    int startingStepCount = 0;
+    int stepCount = 0;
 
     String sharedPrefFile;
 
