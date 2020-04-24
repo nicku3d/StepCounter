@@ -1,8 +1,8 @@
 package com.gmail.nicku3d.stepcounter;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -11,8 +11,10 @@ import android.widget.TextView;
 
 public class LoginActivity extends AppCompatActivity {
 
+    //TODO: change sharedPreferences to non static and put its name in putExtra with intent
     private EditText etName, etHeight, etAge;
     private TextView tvError;
+    private String sharedPrefFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +25,8 @@ public class LoginActivity extends AppCompatActivity {
         etHeight = findViewById(R.id.et_height);
         etAge = findViewById(R.id.et_age);
         tvError = findViewById(R.id.tv_error);
+
+        sharedPrefFile = getIntent().getStringExtra("sharedPrefFile");
     }
 
     public void applyLogin(View view) {
@@ -52,7 +56,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
             //saving user information to preferences
-            SharedPreferences.Editor preferencesEditor = MainActivity.mPreferences.edit();
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+            SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
             preferencesEditor.putString("user_name", name);
             preferencesEditor.putInt("user_height", height);
             preferencesEditor.putInt("user_age", age);
